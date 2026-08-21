@@ -3,6 +3,7 @@ import streamlit as st
 from pydantic import ValidationError
 
 from validador import Campanha
+from corretor import corrigir_dados
 
 
 def validar_dados(df):
@@ -30,7 +31,7 @@ def main():
     )
 
     if arquivo:
-        df = pd.read_csv(arquivo)
+        df = pd.read_csv(arquivo, keep_default_na=False)
 
         st.subheader("Dados")
         st.dataframe(df)
@@ -45,6 +46,17 @@ def main():
                     st.write(
                         f"Linha {erro['linha']}: {erro['erro']}"
                     )
+
+                df_corrigido = corrigir_dados(df)
+
+                novos_erros = validar_dados(df_corrigido)
+
+                if not novos_erros:
+                    st.success("Erros corrigidos com sucesso!")
+
+                st.subheader("Dados corrigidos")
+                st.dataframe(df_corrigido)
+
             else:
                 st.success("Todos os dados são válidos!")
 
